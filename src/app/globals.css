@@ -16,18 +16,10 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.create-acc {
+  background-color: #42B72A;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.create-acc:hover {
+  background-color: #36A420;
 }
