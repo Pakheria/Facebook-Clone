@@ -42,3 +42,7 @@ public/PG_PureWhite.svg
 public/PL_PrimaryBlack.svg
 public/PL_PrimaryLogo.svg
 public/PL_PrimaryPureWhite.svg
+**/server/
+**/public/
+**/static
+**/templates

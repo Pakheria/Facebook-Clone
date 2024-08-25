@@ -1,0 +1,42 @@
+proxima-guard
+├── .eslintrc.json
+├── .gitignore
+├── .hintrc
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── public
+│   ├── facebook.svg
+│   ├── favicon.png
+│   ├── Favicon.svg
+│   ├── PG_PrimaryLogo.svg
+│   ├── PG_PureBlack.svg
+│   ├── PG_PureWhite.svg
+│   ├── PL_PrimaryBlack.svg
+│   ├── PL_PrimaryLogo.svg
+│   └── PL_PrimaryPureWhite.svg
+├── README.md
+├── src
+│   ├── app
+│   │   ├── (auth)
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   └── signup
+│   │   │       └── page.tsx
+│   │   ├── (info)
+│   │   │   ├── about
+│   │   │   │   └── page.tsx
+│   │   │   └── contact
+│   │   │       └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   └── components
+│       ├── Footer.tsx
+│       ├── Header.tsx
+│       └── LoginForm.tsx
+├── tailwind.config.ts
+└── tsconfig.json

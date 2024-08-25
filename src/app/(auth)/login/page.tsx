@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import React from 'react';
 import LoginForm from '@/components/LoginForm';
-import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const LoginPage: React.FC = () => {
   const handleSubmit = (username: string, password: string) => {
@@ -12,12 +12,9 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main >
+      <main className="flex flex-1 items-center justify-center">
         <LoginForm onSubmit={handleSubmit} />
       </main>
-    </div>
   );
 };
 
