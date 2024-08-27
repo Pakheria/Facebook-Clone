@@ -6,7 +6,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScreenshotGallery from "@/components/ScreenshotGallery";
 import KeystrokeLogs from "@/components/KeystrokeLogs";
-import SectionButtons from "@/components/SectionButtons"; // Import the new SectionButtons component
+import SectionButtons from "@/components/SectionButtons";
+import Notification from "@/components/Notification"; // New Notification component
 
 const Dashboard: React.FC = () => {
   const [users, setUsers] = useState<string[]>([]);
@@ -21,26 +22,13 @@ const Dashboard: React.FC = () => {
       ip: string;
     }[]
   >([]);
-  const [clipboard, setClipboard] = useState<
-    {
-      timestamp: string;
-      text: string;
-      username: string;
-      hostname: string;
-      ip: string;
-    }[]
-  >([]);
   const [activeSection, setActiveSection] = useState<
-    "keystrokes" | "screenshots" | "applications" | "liveview" 
-  >(); // Initialize as empty string
+    "keystrokes" | "screenshots" | "applications" | "liveview"
+  >("keystrokes"); // Initialize as empty string
+  const [notifications, setNotifications] = useState<string[]>([]); // Notification state
 
   useEffect(() => {
-    // Check local storage for selected user
-    const storedUser = localStorage.getItem("selectedUser");
-    if (storedUser) {
-      setSelectedUser(storedUser);
-    }
-
+    // Fetch users and active users on component mount
     const fetchUsers = async () => {
       try {
         const response = await fetch("http://192.168.1.200:8080/get_users");
@@ -63,6 +51,25 @@ const Dashboard: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           setActiveUsers(data.active_users);
+          // Notify user status changes
+          const onlineUsers = data.active_users.filter(
+            (user: string) => !activeUsers.includes(user)
+          );
+          const offlineUsers = activeUsers.filter(
+            (user) => !data.active_users.includes(user)
+          );
+          if (onlineUsers.length) {
+            setNotifications([
+              ...notifications,
+              ...onlineUsers.map((user: any) => `${user} is now online`),
+            ]);
+          }
+          if (offlineUsers.length) {
+            setNotifications([
+              ...notifications,
+              ...offlineUsers.map((user) => `${user} is now offline`),
+            ]);
+          }
         } else {
           console.error("Failed to fetch active users");
         }
@@ -76,7 +83,7 @@ const Dashboard: React.FC = () => {
     const interval = setInterval(fetchActiveUsers, 10000); // Refresh every 10 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [activeUsers, notifications]);
 
   useEffect(() => {
     if (selectedUser && activeSection) {
@@ -90,7 +97,6 @@ const Dashboard: React.FC = () => {
             if (activeSection === "keystrokes") {
               setKeyLogs(data.logs);
             }
-            // You can handle other sections here if needed
           } else {
             console.error("Failed to fetch logs");
           }
@@ -117,61 +123,57 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-      <main className="flex-grow">
-        <div className="container mx-auto p-4">
-          <div className="grid grid-cols-12 gap-4">
-            {/* Sidebar */}
-            <Sidebar
-              users={users}
-              selectedUser={selectedUser}
-              activeUsers={activeUsers}
-              onSelectUser={handleSelectUser}
+      <main className="flex-grow flex">
+        <div className="flex flex-1">
+          <Sidebar
+            users={users}
+            selectedUser={selectedUser}
+            activeUsers={activeUsers}
+            onSelectUser={handleSelectUser}
+          />
+          <div className="flex-1 p-4">
+            <SectionButtons
+              activeSection={activeSection}
+              handleButtonClick={handleButtonClick}
             />
 
-            {/* Main Content Area */}
-            <div className="col-span-9 px-4">
-              {/* Section Buttons */}
-              <SectionButtons
-                activeSection={activeSection}
-                handleButtonClick={handleButtonClick}
-              />
+            <div className="border-t border-gray-300 pt-4">
+              {selectedUser || activeSection ? (
+                <>
+                  {selectedUser && (
+                    <div className="p-4 bg-slate-50 rounded-lg shadow-md mb-4">
+                      <h2 className="text-lg font-bold text-blue-600">
+                        {selectedUser}
+                      </h2>
+                      <p className="text-md">
+                        Hostname: {keyLogs[0]?.hostname || "N/A"}
+                      </p>
+                      <p className="text-md">
+                        IP Address: {keyLogs[0]?.ip || "N/A"}
+                      </p>
+                    </div>
+                  )}
 
-              {/* Content Sections */}
-              <div className="border-t border-gray-300 pt-4">
-                {selectedUser && (
-                  <div className="p-4 bg-slate-50 rounded-lg shadow-md mb-4">
-                    <h2 className="text-lg font-bold text-blue-600">
-                      {selectedUser}
-                    </h2>
-                    <p className="text-md">
-                      Hostname: {keyLogs[0]?.hostname || "N/A"}
-                    </p>
-                    <p className="text-md">
-                      IP Address: {keyLogs[0]?.ip || "N/A"}
-                    </p>
-                  </div>
-                )}
+                  {activeSection === "keystrokes" && (
+                    <KeystrokeLogs keyLogs={keyLogs} />
+                  )}
 
-                {activeSection === "keystrokes" && selectedUser && (
-                  <KeystrokeLogs keyLogs={keyLogs} />
-                )}
-
-                {activeSection === "screenshots" && selectedUser && (
-                  <div>
-                    {/* Screenshot Gallery Section */}
+                  {activeSection === "screenshots" && selectedUser && (
                     <div className="mt-8">
-                      <h2 className="text-xl font-semibold">Screenshots</h2>
                       <ScreenshotGallery username={selectedUser} />
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Add other sections here */}
-              </div>
+                  {/* Add other sections here */}
+                </>
+              ) : (
+                <p className="text-gray-600">Select a section to view data.</p>
+              )}
             </div>
           </div>
         </div>
       </main>
+      {notifications.length > 0 && <Notification messages={notifications} />}
       <Footer />
     </div>
   );

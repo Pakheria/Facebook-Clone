@@ -16,6 +16,7 @@ const Footer: React.FC = () => {
             width={150}
             height={100}
             className="h-12"
+            
           />
         </div>
         <div className="text-center flex-1">

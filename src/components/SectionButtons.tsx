@@ -8,7 +8,7 @@ interface SectionButtonsProps {
 }
 
 const SectionButtons: React.FC<SectionButtonsProps> = ({
-  activeSection,
+  activeSection = "keystrokes",
   handleButtonClick,
 }) => {
   return (

@@ -15,6 +15,7 @@ const Header: React.FC = () => {
             width={150}
             height={100}
             className="h-12"
+            priority
           />
         </div>
         <div className="col-span-2"></div>

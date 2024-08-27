@@ -34,14 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-public/next.svg
-public/PG_Favicon.svg
-public/PG_PrimaryLogo.svg
-public/PG_PureBlack.svg
-public/PG_PureWhite.svg
-public/PL_PrimaryBlack.svg
-public/PL_PrimaryLogo.svg
-public/PL_PrimaryPureWhite.svg
 **/server/
 **/public/
 **/static
