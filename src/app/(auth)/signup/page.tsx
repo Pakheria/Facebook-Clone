@@ -1,9 +1,0 @@
-import Link from "next/link";
-import Image from "next/image";
-import Navbar from '../../../components/navigation/navbar/Navbar';
-
-export default function Home() {
-  return (
-    <Navbar name="Signup" />
-  )
-}
