@@ -37,10 +37,77 @@ html, body {
   padding: 0;
 }
 
-.login-page-bg {
-  background-image: url('/bg1.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+/* Rotate the background */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animate particle movement */
+@keyframes move {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(50px, 50px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* Animate moving objects */
+@keyframes move-object {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(200px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Apply rotation to background */
+.animate-rotate {
+  animation: rotate 60s linear infinite;
+}
+
+/* Apply movement to particles */
+.animate-move {
+  animation: move infinite ease-in-out;
+}
+
+/* Styling for moving objects */
+.moving-object {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  animation: move-object 10s linear infinite;
+}
+
+/* Position the objects differently */
+.moving-object:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-duration: 12s;
+}
+
+.moving-object:nth-child(2) {
+  top: 60%;
+  left: 80%;
+  animation-duration: 15s;
+}
+
+.moving-object:nth-child(3) {
+  top: 80%;
+  left: 30%;
+  animation-duration: 18s;
 }
 

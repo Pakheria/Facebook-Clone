@@ -1,54 +1,84 @@
+// src/components/LoginForm.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-interface LoginFormProps {
-  error?: string;
-  onSubmit: (username: string, password: string) => void;
-}
-
-const LoginForm: React.FC<LoginFormProps> = ({ error, onSubmit }) => {
+const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(username, password);
+    setLoading(true); // Show loading spinner
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.token); // Save token in localStorage
+        router.push("/"); // Redirect to dashboard
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false); // Hide loading spinner
+    }
   };
 
   return (
-    <div className="flex flex-row items-center justify-between w-full max-w-6xl p-8 space-x-8">
-      <div className="flex-1 flex flex-col items-center">
-        <div className="bg-white flex flex-col pt-3 pb-6 px-4 rounded-md w-full max-w-md drop-shadow-2xl">
-          <form onSubmit={handleSubmit}>
-            <div className="relative mb-4 py-6">
-              <input
-                className="w-full border-b border-gray-300 py-2 px-1 outline-none"
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="relative mb-6">
-              <input
-                className="w-full border-b border-gray-300 py-2 px-1 outline-none"
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-3.5 rounded-md mt-3 text-lg font-bold hover:bg-blue-700"
-            >
-              Log in
-            </button>
-          </form>
-          {error && <p className="text-red-600 mt-2">{error}</p>}
+    <div className="max-w-md mx-auto p-4 border rounded-lg shadow-md bg-white">
+      <h2 className="text-2xl font-bold mb-4">Login</h2>
+      {loading && (
+        <div className="flex justify-center mb-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500"></div>
         </div>
-      </div>
+      )}
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-2 border rounded-lg"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded-lg"
+            required
+            autoComplete="current-password"
+          />
+        </div>
+        {error && <p className="text-red-600">{error}</p>}
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg"
+          disabled={loading} // Disable button when loading
+        >
+          Login
+        </button>
+      </form>
     </div>
   );
 };

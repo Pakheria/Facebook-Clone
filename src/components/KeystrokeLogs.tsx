@@ -9,10 +9,11 @@ interface KeyLog {
   ip: string;
 }
 
+
 const KeystrokeLogs: React.FC<{ keyLogs: KeyLog[] }> = ({ keyLogs }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [logsPerPage, setLogsPerPage] = useState(10); // Default to 10 logs per page
+  const [logsPerPage, setLogsPerPage] = useState(30); // Default to 30 logs per page
 
   const handleToggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
@@ -53,9 +54,9 @@ const KeystrokeLogs: React.FC<{ keyLogs: KeyLog[] }> = ({ keyLogs }) => {
           value={logsPerPage}
           onChange={handleLogsPerPageChange}
         >
-          <option value={10}>10</option>
-          <option value={20}>20</option>
           <option value={30}>30</option>
+          <option value={40}>40</option>
+          <option value={50}>50</option>
         </select>
       </div>
 

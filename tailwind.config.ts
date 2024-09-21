@@ -8,6 +8,7 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx}', // Update this to match your project structure
 
   ],
+
   theme: {
     screens: {
       sm: '480px',
@@ -39,7 +40,6 @@ const config: Config = {
     },
   },
   plugins: [
-    require('@tailwindcss/line-clamp'),
   ],
 };
 export default config;
